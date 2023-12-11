@@ -1,96 +1,25 @@
-
+// Load environment variables from a .env file
 require('dotenv').config();
 
 const express = require('express');
 const morgan = require('morgan');
-const Joi = require('joi');
+const planetsController = require('./planetsController');
 
 const app = express();
 const port = process.env.PORT || 3000;
-
-let planets = [
-  {
-    id: 1,
-    name: 'Earth',
-  },
-  {
-    id: 2,
-    name: 'Mars',
-  },
-];
-
-const planetSchema = Joi.object({
-  id: Joi.number().integer().min(1),
-  name: Joi.string().required(),
-});
 
 app.use(express.json());
 app.use(morgan('dev'));
 
 app.get('/', (req, res) => {
-  res.send(planets);
+  res.send(planetsController.getAll(req, res));
 });
 
-app.get('/api/planets', (req, res) => {
-  res.json(planets);
-});
-
-app.get('/api/planets/:id', (req, res) => {
-  const planetId = parseInt(req.params.id);
-  const planet = planets.find((p) => p.id === planetId);
-
-  if (!planet) {
-    return res.status(404).json({ error: 'Planet not found' });
-  }
-
-  res.json(planet);
-});
-
-app.post('/api/planets', (req, res) => {
-  const { error, value } = planetSchema.validate(req.body);
-
-  if (error) {
-    return res.status(400).json({ error: error.details[0].message });
-  }
-
-  const newPlanet = {
-    id: planets.length + 1,
-    name: value.name,
-  };
-
-  planets.push(newPlanet);
-  res.status(201).json({ msg: 'Planet created successfully' });
-});
-
-app.put('/api/planets/:id', (req, res) => {
-  const planetId = parseInt(req.params.id);
-  const planet = planets.find((p) => p.id === planetId);
-
-  if (!planet) {
-    return res.status(404).json({ error: 'Planet not found' });
-  }
-
-  const { error, value } = planetSchema.validate(req.body);
-
-  if (error) {
-    return res.status(400).json({ error: error.details[0].message });
-  }
-
-  planet.name = value.name;
-  res.status(200).json({ msg: 'Planet updated successfully' });
-});
-
-app.delete('/api/planets/:id', (req, res) => {
-  const planetId = parseInt(req.params.id);
-  const index = planets.findIndex((p) => p.id === planetId);
-
-  if (index === -1) {
-    return res.status(404).json({ error: 'Planet not found' });
-  }
-
-  planets.splice(index, 1);
-  res.status(200).json({ msg: 'Planet deleted successfully' });
-});
+app.get('/api/planets', planetsController.getAll);
+app.get('/api/planets/:id', planetsController.getOneById);
+app.post('/api/planets', planetsController.create);
+app.put('/api/planets/:id', planetsController.updateById);
+app.delete('/api/planets/:id', planetsController.deleteById);
 
 app.use((err, req, res, next) => {
   console.error(err.stack);
