@@ -1,36 +1,46 @@
-const { EventEmitter } = require("events"); 
 
-function createNewsFeed() {
-  const emitter = new EventEmitter();
+require('dotenv').config();
 
-  setInterval(() => {
-    emitter.emit("newsEvent", "News: A thing happened in a place.");
-  }, 1000);
+const express = require('express');
+const morgan = require('morgan');
 
-  setInterval(() => {
-    emitter.emit("breakingNews", "Breaking news! A BIG thing happened.");
-  }, 4000);
-
-  setTimeout(() => {
-    emitter.emit("error", new Error("News feed connection error"));
-  }, 5000);
-
-  return emitter;
-}
-
-const newsFeed = createNewsFeed();
+const app = express();
+const port = process.env.PORT || 3000;
 
 
-newsFeed.on("newsEvent", (data) => {
-  console.log("News Event:", data);
+let planets = [
+  {
+    id: 1,
+    name: 'Earth',
+  },
+  {
+    id: 2,
+    name: 'Mars',
+  },
+];
+
+
+app.use(express.json());
+app.use(morgan('dev'));
+
+
+app.get('/', (req, res) => {
+  res.send(planets);
 });
 
 
-newsFeed.on("breakingNews", (data) => {
-  console.log("Breaking News:", data);
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send('Something went wrong!');
 });
 
 
-newsFeed.on("error", (error) => {
-  console.error("Error:", error.message);
+app.listen(port, () => {
+  console.log(`Server is running on http://localhost:${port}`);
+});
+
+
+process.on('unhandledRejection', (err) => {
+  console.error('Unhandled Promise Rejection:', err);
+  
 });
