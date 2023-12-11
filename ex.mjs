@@ -27,3 +27,20 @@ const luckyDraw = (player) => {
   Promise.all(drawPromises)
     .then(() => console.log('All draws completed.'))
     .catch((error) => console.error('Error in promise chain:', error.message));
+
+
+    async function getResults() {
+      const players = ['Tina', 'Jorge', 'Julien'];
+    
+      for (const player of players) {
+        try {
+          const result = await luckyDraw(player);
+          console.log(result);
+        } catch (error) {
+          console.error(error.message);
+        }
+      }
+    }
+    
+    getResults();
+    
