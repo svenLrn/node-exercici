@@ -1,4 +1,4 @@
-const { EventEmitter } = require("events"); // Use "events" instead of "node:events"
+const { EventEmitter } = require("events"); 
 
 function createNewsFeed() {
   const emitter = new EventEmitter();
