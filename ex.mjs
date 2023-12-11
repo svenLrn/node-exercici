@@ -1,46 +1,36 @@
+const { EventEmitter } = require("events"); // Use "events" instead of "node:events"
 
-const luckyDraw = (player) => {
-    return new Promise((resolve, reject) => {
-      const win = Boolean(Math.round(Math.random()));
-  
-      process.nextTick(() => {
-        if (win) {
-          resolve(`${player} won a prize in the draw!`);
-        } else {
-          reject(new Error(`${player} lost the draw.`));
-        }
-      });
-    });
-  };
-  
+function createNewsFeed() {
+  const emitter = new EventEmitter();
 
-  const players = ['Joe', 'Caroline', 'Sabrina'];
-  
+  setInterval(() => {
+    emitter.emit("newsEvent", "News: A thing happened in a place.");
+  }, 1000);
 
-  const drawPromises = players.map((player) =>
-    luckyDraw(player)
-      .then((result) => console.log(result))
-      .catch((error) => console.error(error.message))
-  );
-  
+  setInterval(() => {
+    emitter.emit("breakingNews", "Breaking news! A BIG thing happened.");
+  }, 4000);
 
-  Promise.all(drawPromises)
-    .then(() => console.log('All draws completed.'))
-    .catch((error) => console.error('Error in promise chain:', error.message));
+  setTimeout(() => {
+    emitter.emit("error", new Error("News feed connection error"));
+  }, 5000);
+
+  return emitter;
+}
+
+const newsFeed = createNewsFeed();
 
 
-    async function getResults() {
-      const players = ['Tina', 'Jorge', 'Julien'];
-    
-      for (const player of players) {
-        try {
-          const result = await luckyDraw(player);
-          console.log(result);
-        } catch (error) {
-          console.error(error.message);
-        }
-      }
-    }
-    
-    getResults();
-    
+newsFeed.on("newsEvent", (data) => {
+  console.log("News Event:", data);
+});
+
+
+newsFeed.on("breakingNews", (data) => {
+  console.log("Breaking News:", data);
+});
+
+
+newsFeed.on("error", (error) => {
+  console.error("Error:", error.message);
+});
