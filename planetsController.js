@@ -1,83 +1,38 @@
-// controllers/planetsController.js
-
-const { Request, Response } = require('express');
-const Joi = require('joi');
-
-const planets = [
-  {
-    id: 1,
-    name: 'Earth',
-  },
-  {
-    id: 2,
-    name: 'Mars',
-  },
-];
-
-const planetSchema = Joi.object({
-  id: Joi.number().integer().min(1),
-  name: Joi.string().required(),
-});
+const db = require('./db'); 
 
 const planetsController = {
-  getAll: (req, res) => {
+  getAll: async (req, res) => {
+    const planets = await db.any('SELECT * FROM planets');
     res.json(planets);
   },
 
-  getOneById: (req, res) => {
+  getOneById: async (req, res) => {
     const planetId = parseInt(req.params.id);
-    const planet = planets.find((p) => p.id === planetId);
-
-    if (!planet) {
-      return res.status(404).json({ error: 'Planet not found' });
-    }
+    const planet = await db.one('SELECT * FROM planets WHERE id=$1', planetId);
 
     res.json(planet);
   },
 
-  create: (req, res) => {
-    const { error, value } = planetSchema.validate(req.body);
+  create: async (req, res) => {
+    const { name } = req.body;
+    await db.none('INSERT INTO planets (name) VALUES ($1)', name);
 
-    if (error) {
-      return res.status(400).json({ error: error.details[0].message });
-    }
-
-    const newPlanet = {
-      id: planets.length + 1,
-      name: value.name,
-    };
-
-    planets.push(newPlanet);
     res.status(201).json({ msg: 'Planet created successfully' });
   },
 
-  updateById: (req, res) => {
+  updateById: async (req, res) => {
     const planetId = parseInt(req.params.id);
-    const planet = planets.find((p) => p.id === planetId);
+    const { name } = req.body;
 
-    if (!planet) {
-      return res.status(404).json({ error: 'Planet not found' });
-    }
+    await db.none('UPDATE planets SET name=$1 WHERE id=$2', [name, planetId]);
 
-    const { error, value } = planetSchema.validate(req.body);
-
-    if (error) {
-      return res.status(400).json({ error: error.details[0].message });
-    }
-
-    planet.name = value.name;
     res.status(200).json({ msg: 'Planet updated successfully' });
   },
 
-  deleteById: (req, res) => {
+  deleteById: async (req, res) => {
     const planetId = parseInt(req.params.id);
-    const index = planets.findIndex((p) => p.id === planetId);
+    await db.none('DELETE FROM planets WHERE id=$1', planetId);
 
-    if (index === -1) {
-      return res.status(404).json({ error: 'Planet not found' });
-    }
-
-    planets.splice(index, 1);
     res.status(200).json({ msg: 'Planet deleted successfully' });
   },
 };
