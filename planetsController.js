@@ -1,4 +1,6 @@
-const db = require('./db'); 
+
+const db = require('./db');
+const path = require('path');
 
 const planetsController = {
   getAll: async (req, res) => {
@@ -34,6 +36,24 @@ const planetsController = {
     await db.none('DELETE FROM planets WHERE id=$1', planetId);
 
     res.status(200).json({ msg: 'Planet deleted successfully' });
+  },
+
+  uploadImage: async (req, res) => {
+    const planetId = parseInt(req.params.id);
+
+    if (!req.file) {
+      return res.status(400).json({ error: 'No image file provided' });
+    }
+
+    const imagePath = path.join('uploads', req.file.filename);
+
+    try {
+      await db.none('UPDATE planets SET image=$1 WHERE id=$2', [imagePath, planetId]);
+      res.status(200).json({ msg: 'Planet image updated successfully' });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Failed to update planet image' });
+    }
   },
 };
 
