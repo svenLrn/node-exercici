@@ -32,7 +32,7 @@ app.post('/planets', planetsController.create);
 app.put('/planets/:id', planetsController.updateById);
 app.delete('/planets/:id', planetsController.deleteById);
 
-app.get('/planets/:id/image', upload.single('image'), planetsController.uploadImage);
+
 app.post('/planets/:id/image', upload.single('image'), planetsController.uploadImage);
 
 
