@@ -2,7 +2,7 @@
   "name": "exercici-node",
   "version": "1.0.0",
   "description": "",
-  "main": "ex7.js",
+  "main": "server.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -15,8 +15,11 @@
     "express-async-errors": "^3.1.1",
     "figlet": "^1.7.0",
     "joi": "^17.11.0",
+    "jsonwebtoken": "^9.0.2",
     "morgan": "^1.10.0",
     "multer": "^1.4.5-lts.1",
+    "passport": "^0.7.0",
+    "passport-jwt": "^4.0.1",
     "pg-promise": "^11.5.4"
   }
 }
